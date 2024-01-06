@@ -7,6 +7,16 @@
 #include <errno.h>
 #include <unistd.h>
 
+struct dns_header {
+    unsigned short id;          // ID field: 16 bits
+    unsigned char qr :1;        // Query/Response Indicator
+    unsigned char rd :1;        // Recursion Desired: 1 bit
+    unsigned char tc :1;        // Truncation: 1 bit
+    // ... Other fields go here
+    unsigned short qdcount;     // Question Count: 16 bits
+    // ...
+};
+
 int main() {
 	// Disable output buffering
 	setbuf(stdout, NULL);
@@ -32,10 +42,11 @@ int main() {
 		return 1;
 	}
 	
-	struct sockaddr_in serv_addr = { .sin_family = AF_INET ,
-									 .sin_port = htons(2053),
-									 .sin_addr = { htonl(INADDR_ANY) },
-									};
+	struct sockaddr_in serv_addr = { 
+        .sin_family = AF_INET ,
+        .sin_port = htons(2053),
+		.sin_addr = { htonl(INADDR_ANY) },
+	};
 	
 	if (bind(udpSocket, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) != 0) {
 		printf("Bind failed: %s \n", strerror(errno));
